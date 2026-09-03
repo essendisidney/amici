@@ -54,11 +54,17 @@ export default function BriefPage() {
 
   const latest = matter.messages.at(-1)
   const held = holds.find((h) => h.status === 'held' || h.status === 'released') ?? holds[0]
+  const baseFacts = matter.messages[0]?.text ?? matter.matter
+  const extra: string[] = []
+  if (evidenceNote.trim()) extra.push(`Evidence note: ${evidenceNote.trim()}`)
+  if (receiptRef.trim()) extra.push(`Receipt ref: ${receiptRef.trim()}`)
+  const factsForDraft = extra.length ? `${baseFacts}\n\n${extra.join('\n')}` : baseFacts
+
   const draftHref = `/practice/draft?client=${encodeURIComponent(clientName || 'Client to confirm')}&opponent=${encodeURIComponent(
     opponent || 'Other party to confirm',
   )}&town=${encodeURIComponent(town || 'Town to confirm')}&amount=${encodeURIComponent(
     held ? `KSh ${held.amountKes}` : '',
-  )}&facts=${encodeURIComponent(matter.messages[0]?.text ?? matter.matter)}`
+  )}&facts=${encodeURIComponent(factsForDraft)}`
 
   function saveDetails() {
     const next = setMatterDetails(id, { clientName, town, opponent, receiptRef, evidenceNote })
