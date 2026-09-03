@@ -2,10 +2,11 @@
 
 import { holdEscrow, requestConsult } from '@/app/actions'
 import { openMatter } from '@/lib/file-store'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { clearRightsDraft, loadRightsDraft } from '@/lib/rights'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from 'react'
 
-export function BookForm({
+function BookFormBody({
   advocateId,
   advocateName,
   demo,
@@ -15,10 +16,18 @@ export function BookForm({
   demo: boolean
 }) {
   const router = useRouter()
+  const search = useSearchParams()
   const [msg, setMsg] = useState<string | null>(null)
   const [matter, setMatter] = useState('')
 
+  useEffect(() => {
+    const fromUrl = search.get('matter')?.trim()
+    const fromDraft = loadRightsDraft().trim()
+    setMatter(fromUrl || fromDraft || '')
+  }, [search])
+
   function startThread(text: string) {
+    clearRightsDraft()
     const room = openMatter(advocateName, text)
     router.push(`/inbox/${room.id}`)
   }
@@ -80,5 +89,13 @@ export function BookForm({
       )}
       {msg && <p className="notice">{msg}</p>}
     </div>
+  )
+}
+
+export function BookForm(props: { advocateId: string; advocateName: string; demo: boolean }) {
+  return (
+    <Suspense fallback={null}>
+      <BookFormBody {...props} />
+    </Suspense>
   )
 }

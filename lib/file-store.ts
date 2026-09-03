@@ -58,10 +58,11 @@ export function loadFile(): FileState {
       return first
     }
     const parsed = JSON.parse(raw) as FileState
+    const watches = parsed.watches ?? []
     return {
-      watches: parsed.watches ?? [],
+      watches,
       matters: parsed.matters ?? [],
-      pings: parsed.pings ?? [],
+      pings: hearingPings(watches),
     }
   } catch {
     return empty()
@@ -80,7 +81,7 @@ export function hearingPings(watches: Watch[]): Ping[] {
         hits.push({
           id: `hear-${row.number}`,
           text: `${row.number} · ${day.date} ${row.time} · ${day.court} room ${row.room}`,
-          href: '/cause-list',
+          href: `/proof?kind=hearing&n=${encodeURIComponent(row.number)}`,
           at: day.date,
         })
       }
@@ -101,12 +102,20 @@ export function openMatter(advocate: string, matter: string) {
   const state = loadFile()
   const id = `m-${Date.now().toString(36)}`
   const tags = inferMatterTags(matter)
+  const lockout =
+    matter.toLowerCase().includes('lock') ||
+    matter.toLowerCase().includes('landlord') ||
+    matter.toLowerCase().includes('kufuli') ||
+    matter.toLowerCase().includes('nyumba')
   const item: Matter = {
     id,
     advocate,
     matter,
     town: tags.town,
     opponent: tags.opponent,
+    evidenceNote: lockout
+      ? 'Lock-out: rent M-PESA receipt, photo of door/lock, date locks changed, any threats (verbatim).'
+      : null,
     status: 'pending',
     messages: [{ from: 'me', text: matter, at: new Date().toISOString() }],
   }

@@ -1,11 +1,14 @@
 'use client'
 
 import { addLine, getMatter, type Matter } from '@/lib/file-store'
+import { EvidenceSms } from '@/components/EvidenceSms'
+import { useLang } from '@/components/Lang'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function MatterRoom() {
+  const { t } = useLang()
   const { id } = useParams<{ id: string }>()
   const [matter, setMatter] = useState<Matter | null | undefined>(undefined)
   const [text, setText] = useState('')
@@ -28,9 +31,7 @@ export default function MatterRoom() {
     `${matter.matter} ${matter.opponent ?? ''}`.toLowerCase().includes('lock') ||
     `${matter.matter} ${matter.opponent ?? ''}`.toLowerCase().includes('landlord')
 
-  const placeholder = isLockout
-    ? 'What changed? When were the locks changed? M-PESA rent receipt ref. Any threats/messages. (Also: photo note about the door/lock.)'
-    : 'Send a fact, not a novel…'
+  const placeholder = isLockout ? t.lockHint : 'Send a fact, not a novel…'
 
   function send() {
     const q = text.trim()
@@ -46,8 +47,8 @@ export default function MatterRoom() {
   }
 
   function addLockoutSnippet(snippet: string) {
-    setText((t) => {
-      const next = t.trim()
+    setText((prev) => {
+      const next = prev.trim()
       return next ? `${next}\n${snippet}` : snippet
     })
   }
@@ -78,7 +79,21 @@ export default function MatterRoom() {
         >
           Draft SMS proof
         </Link>
+        {isLockout ? (
+          <Link className="btn ghost" href={`/proof?kind=evidence&matterId=${encodeURIComponent(id)}`}>
+            {t.evidencePack}
+          </Link>
+        ) : null}
       </p>
+      {isLockout ? (
+        <section className="panel" style={{ marginBottom: 16 }}>
+          <h2 style={{ fontSize: '1.15rem', marginBottom: 6 }}>{t.evidencePack}</h2>
+          <p className="muted" style={{ marginBottom: 10 }}>
+            {t.evidencePackLead}
+          </p>
+          <EvidenceSms matter={matter} />
+        </section>
+      ) : null}
       <div className="thread">
         {matter.messages.map((m, i) => (
           <div key={`${m.at}-${i}`} className={`bubble ${m.from === 'me' ? 'me' : ''}`}>
@@ -91,40 +106,24 @@ export default function MatterRoom() {
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {isLockout ? (
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button
-                className="btn ghost"
-                type="button"
-                onClick={() => addLockoutSnippet('Locks changed: date/time (DD Mon YYYY)')}
-              >
-                Add date
+              <button className="btn ghost" type="button" onClick={() => addLockoutSnippet(t.lockDateLine)}>
+                {t.lockDate}
               </button>
-              <button
-                className="btn ghost"
-                type="button"
-                onClick={() => addLockoutSnippet('M-PESA rent receipt ref/code (type exactly)')}
-              >
-                Add receipt ref
+              <button className="btn ghost" type="button" onClick={() => addLockoutSnippet(t.lockReceiptLine)}>
+                {t.lockReceipt}
               </button>
-              <button
-                className="btn ghost"
-                type="button"
-                onClick={() => addLockoutSnippet('Photo note: what the door/lock shows')}
-              >
-                Add photo note
+              <button className="btn ghost" type="button" onClick={() => addLockoutSnippet(t.lockPhotoLine)}>
+                {t.lockPhoto}
               </button>
-              <button
-                className="btn ghost"
-                type="button"
-                onClick={() => addLockoutSnippet('Any threats/messages (copy verbatim if possible)')}
-              >
-                Add threats
+              <button className="btn ghost" type="button" onClick={() => addLockoutSnippet(t.lockThreatLine)}>
+                {t.lockThreat}
               </button>
             </div>
           ) : null}
           <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={placeholder} />
         </div>
         <button className="btn" type="button" onClick={send}>
-          Send
+          {t.send}
         </button>
       </div>
     </>

@@ -279,7 +279,10 @@ h1, h2, h3, .brand {
   color: var(--cream);
   border: 1px solid rgba(214, 255, 61, 0.35);
 }
-.btn:hover { background: #eaff6a; }
+.btn:hover, .btn.ghost:hover {
+  background: #eaff6a;
+  color: #08110c;
+}
 
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .field label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute); }
@@ -381,6 +384,7 @@ h1, h2, h3, .brand {
   text-transform: uppercase;
   text-decoration: none;
 }
+.crumb:hover { color: var(--mark); }
 .alert {
   background: rgba(255, 75, 56, 0.12);
   border: 1px solid var(--stamp);

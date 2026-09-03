@@ -1,15 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { caseCache } from '@/lib/cases'
+import { hearingFor } from '@/lib/cause-list'
 import { useLang } from '@/components/Lang'
+import { HearingSms } from '@/components/HearingSms'
 import { WatchForm } from './watch-form'
 
-export default function Track() {
+function TrackBody() {
   const { t } = useLang()
+  const search = useSearchParams()
   const [num, setNum] = useState('HCCC/1234/2023')
   const [found, setFound] = useState<(typeof caseCache)[string] | null>(caseCache['HCCC/1234/2023'])
+  const hearing = found ? hearingFor(found.number) : null
+
+  useEffect(() => {
+    const n = search.get('n')
+    if (!n) return
+    const key = n.trim().toUpperCase()
+    setNum(n.trim())
+    setFound(caseCache[key] ?? null)
+  }, [search])
 
   return (
     <>
@@ -19,15 +32,15 @@ export default function Track() {
       <p className="kicker">Not CTS</p>
       <h1 style={{ fontSize: 'clamp(2.4rem, 7vw, 4rem)', marginBottom: 10 }}>{t.trackCase}</h1>
       <p className="lede">
-        Try HCCC/1234/2023 or SCCC/441/2026. Live status still belongs to the Judiciary.{' '}
-        <Link href="/cause-list">Open the cause list</Link>
+        {t.trackTry}{' '}
+        <Link href="/cause-list">{t.openCauseList}</Link>
       </p>
       <div className="composer">
         <input
           aria-label={t.caseNumber}
           value={num}
           onChange={(e) => setNum(e.target.value)}
-          style={{ flex: 1, border: '1px solid var(--line)', background: 'var(--sheet)', padding: '10px 12px' }}
+          style={{ flex: 1 }}
         />
         <button className="btn" type="button" onClick={() => setFound(caseCache[num.trim().toUpperCase()] ?? null)}>
           {t.track}
@@ -37,7 +50,7 @@ export default function Track() {
         </a>
       </div>
       {found ? (
-        <article className="card" style={{ marginTop: 18 }}>
+        <article className="panel" style={{ marginTop: 18 }}>
           <h3>{found.title}</h3>
           <p className="muted">
             {found.number} · {found.court}
@@ -45,6 +58,17 @@ export default function Track() {
           <p>{found.status}</p>
           <p>
             <strong>{found.next}</strong>
+          </p>
+          {hearing ? (
+            <p className="trust">
+              {t.onCauseList}: {hearing.date} {hearing.time}, room {hearing.room}. {t.confirmOfficial}{' '}
+              <Link href="/cause-list">{t.causeListLink}</Link>
+              {' · '}
+              <Link href="/inbox">{t.inbox}</Link>
+            </p>
+          ) : null}
+          <p className="alert" style={{ background: 'rgba(214, 255, 61, 0.08)', borderColor: 'rgba(214, 255, 61, 0.35)' }}>
+            {t.trackNext}
           </p>
           <ol className="timeline">
             {found.steps.map((s) => (
@@ -61,10 +85,25 @@ export default function Track() {
             court={found.court}
             statusNote={found.status}
           />
+          {hearing ? (
+            <div style={{ marginTop: 16 }}>
+              <h3 style={{ fontSize: '1.1rem' }}>{t.hearingSms}</h3>
+              <p className="muted">{t.hearingSmsLead}</p>
+              <HearingSms number={found.number} />
+            </div>
+          ) : null}
         </article>
       ) : (
-        <p className="notice">No Amici cache for that number. Use official CTS.</p>
+        <p className="notice">{t.trackNotFound}</p>
       )}
     </>
+  )
+}
+
+export default function Track() {
+  return (
+    <Suspense fallback={null}>
+      <TrackBody />
+    </Suspense>
   )
 }

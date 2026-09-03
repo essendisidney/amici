@@ -16,7 +16,9 @@ export default function Ussd() {
       <UssdPhone />
       <p className="notice">
         Official filings stay on efiling.court.go.ke.{' '}
-        <Link href="/proof">Open an SMS proof pack</Link> · <Link href="/cause-list">Today&apos;s list</Link> ·{' '}
+        <Link href="/proof?kind=hearing&n=HCCC/1234/2023">Hearing SMS</Link> ·{' '}
+        <Link href="/proof?kind=evidence&matterId=m-grace">Evidence pack</Link> ·{' '}
+        <Link href="/proof">Proof pack</Link> · <Link href="/cause-list">Today&apos;s list</Link> ·{' '}
         <Link href="/pay">Lipa</Link>
       </p>
     </>

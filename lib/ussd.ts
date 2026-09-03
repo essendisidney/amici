@@ -1,4 +1,6 @@
 import { caseCache } from '@/lib/cases'
+import { demoLockoutSms } from '@/lib/evidence-sms'
+import { hearingSms } from '@/lib/hearing-sms'
 
 export type UssdResult = { type: 'CON' | 'END'; text: string }
 
@@ -52,7 +54,10 @@ export function ussdStep(session: string[], input: string): { session: string[];
     if (key === '4') {
       return {
         session: next,
-        screen: { type: 'CON', text: 'RISITI / SMS\n1 Amana wakili 1500\n2 Dhamana (si release order)\n0 Rudi' },
+        screen: {
+          type: 'CON',
+          text: 'RISITI / SMS\n1 Amana wakili 1500\n2 Dhamana (si release order)\n3 SMS ya kusikia kesi\n4 Ushahidi wa kufuli\n0 Rudi',
+        },
       }
     }
     return { session: [], screen: { type: 'CON', text: 'Chaguo si sahihi.\n1 Haki\n2 Wakili\n3 Kesi\n4 Risiti' } }
@@ -63,7 +68,7 @@ export function ussdStep(session: string[], input: string): { session: string[];
       session: [],
       screen: {
         type: 'END',
-        text: 'Mwenye nyumba hawezi kukufunga nje bila amri katika hali nyingi. Andika tarehe. Piga 2 kupata wakili. Si ushauri.',
+        text: 'Mwenye nyumba hawezi kukufunga nje bila amri katika hali nyingi. Andika tarehe + risiti. Piga 4 kisha 4 kwa SMS ya ushahidi. Piga 2 kwa wakili. Si ushauri.',
       },
     }
   }
@@ -92,7 +97,7 @@ export function ussdStep(session: string[], input: string): { session: string[];
     }
     return {
       session: [],
-      screen: { type: 'END', text: `${c.number}\n${c.next}\n${c.status}\nSi CTS.` },
+      screen: { type: 'END', text: hearingSms(num, true) },
     }
   }
 
@@ -110,6 +115,21 @@ export function ussdStep(session: string[], input: string): { session: string[];
         text: 'SMS: AMICI-PROOF CR/2201/2026 M-PESA XXX. Hii si amri ya kuachiliwa. Clerk bado atathibitisha kwenye CTS.',
       },
     }
+  }
+  if (path === '4.3') {
+    return {
+      session: next,
+      screen: { type: 'CON', text: 'SMS YA KESI\n1 HCCC/1234/2023\n2 SCCC/441/2026\n0 Rudi' },
+    }
+  }
+  if (path === '4.3.1') {
+    return { session: [], screen: { type: 'END', text: hearingSms('HCCC/1234/2023', true) } }
+  }
+  if (path === '4.3.2') {
+    return { session: [], screen: { type: 'END', text: hearingSms('SCCC/441/2026', true) } }
+  }
+  if (path === '4.4') {
+    return { session: [], screen: { type: 'END', text: demoLockoutSms(true) } }
   }
 
   return ussdStep([], '*483*54#')

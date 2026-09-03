@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { hasEnvVars } from '@/lib/utils'
 import { caseCache } from '@/lib/cases'
 import { PhoneFile } from './phone-file'
+import { WatchRows } from './watch-rows'
 
 export default async function Desk() {
   let watches: { case_number: string; title: string | null; court: string | null; status_note: string | null }[] = []
@@ -60,16 +61,13 @@ export default async function Desk() {
       <div className="dash">
         <section className="panel">
           <h2>Watched numbers</h2>
-          {watches.length === 0 && <p className="muted">Nothing watched yet. Open Follow a case.</p>}
-          {watches.map((w) => (
-            <div className="row" key={w.case_number}>
-              <div>
-                <strong>{w.case_number}</strong>
-                <div className="muted">{w.title}</div>
-              </div>
-              <Link href="/track">{w.status_note ?? w.court}</Link>
-            </div>
-          ))}
+          <WatchRows
+            serverWatches={watches.map((w) => ({
+              number: w.case_number,
+              title: w.title ?? w.case_number,
+              court: w.court ?? '',
+            }))}
+          />
         </section>
         <section className="panel">
           <h2>Consults</h2>

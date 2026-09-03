@@ -17,3 +17,12 @@ export const causeDays = [
     ],
   },
 ]
+
+export function hearingFor(number: string) {
+  const n = number.trim().toUpperCase()
+  for (const day of causeDays) {
+    const row = day.rows.find((r) => r.number === n)
+    if (row) return { date: day.date, court: day.court, ...row }
+  }
+  return null
+}

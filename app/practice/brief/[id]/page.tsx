@@ -1,6 +1,7 @@
 'use client'
 
 import { getMatter, setMatterDetails } from '@/lib/file-store'
+import { EvidenceSms } from '@/components/EvidenceSms'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -137,8 +138,8 @@ export default function BriefPage() {
               </button>
             </p>
           ) : null}
-          {isTenantLockout ? (
-            <p style={{ marginTop: -6 }}>
+          <p style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: -6 }}>
+            {isTenantLockout ? (
               <button
                 className="btn ghost"
                 type="button"
@@ -150,8 +151,23 @@ export default function BriefPage() {
               >
                 Use lock-out evidence checklist
               </button>
-            </p>
-          ) : null}
+            ) : null}
+            <button
+              className="btn ghost"
+              type="button"
+              onClick={() => {
+                const fromClient = matter.messages
+                  .filter((m) => m.from === 'me')
+                  .slice(-4)
+                  .map((m) => m.text)
+                  .join('\n')
+                if (!fromClient) return
+                setEvidenceNote((prev) => (prev.trim() ? `${prev.trim()}\n\nFrom thread:\n${fromClient}` : `From thread:\n${fromClient}`))
+              }}
+            >
+              Pull latest client facts
+            </button>
+          </p>
           <div className="field">
             <label htmlFor="evidenceNote">Evidence note</label>
             <textarea
@@ -173,6 +189,22 @@ export default function BriefPage() {
           {msg ? <p className="muted">{msg}</p> : null}
           <p className="muted">Messages in thread: {matter.messages.length}</p>
           {latest ? <p className="muted">Latest: {latest.text}</p> : null}
+          {isTenantLockout ? (
+            <div style={{ marginTop: 16 }}>
+              <h3 style={{ fontSize: '1.05rem' }}>Evidence pack SMS</h3>
+              <p className="muted">Forward to the client or chambers WhatsApp. Still not a filing.</p>
+              <EvidenceSms
+                matter={{
+                  ...matter,
+                  clientName,
+                  town,
+                  opponent,
+                  receiptRef,
+                  evidenceNote,
+                }}
+              />
+            </div>
+          ) : null}
         </section>
         <section className="panel">
           <h2>Money status</h2>

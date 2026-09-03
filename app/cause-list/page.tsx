@@ -1,15 +1,23 @@
+'use client'
+
 import Link from 'next/link'
 import { causeDays } from '@/lib/cause-list'
+import { useLang } from '@/components/Lang'
 
 export default function CauseList() {
+  const { t } = useLang()
+
   return (
     <>
       <Link className="crumb" href="/track">
-        Track
+        {t.trackCase}
       </Link>
-      <p className="kicker">Amici cache · not the official portal</p>
-      <h1 style={{ fontSize: 'clamp(2.4rem, 7vw, 4rem)', marginBottom: 12 }}>Cause list</h1>
-      <p className="lede">When and where, in one glance. Confirm on the Judiciary cause list before you travel.</p>
+      <p className="kicker">{t.causeListConfirm}</p>
+      <h1 style={{ fontSize: 'clamp(2.4rem, 7vw, 4rem)', marginBottom: 12 }}>{t.causeListTitle}</h1>
+      <p className="lede">{t.causeListLead}</p>
+      <p className="alert" style={{ background: 'rgba(214, 255, 61, 0.08)', borderColor: 'rgba(214, 255, 61, 0.35)' }}>
+        {t.tapCase}
+      </p>
       {causeDays.map((day) => (
         <section className="panel" key={day.date} style={{ marginBottom: 12 }}>
           <h2>
@@ -21,17 +29,19 @@ export default function CauseList() {
           <table className="table">
             <thead>
               <tr>
-                <th>Time</th>
-                <th>Number</th>
-                <th>Parties</th>
-                <th>Room</th>
+                <th>{t.colTime}</th>
+                <th>{t.colNumber}</th>
+                <th>{t.colParties}</th>
+                <th>{t.colRoom}</th>
               </tr>
             </thead>
             <tbody>
               {day.rows.map((r) => (
                 <tr key={r.number}>
                   <td>{r.time}</td>
-                  <td>{r.number}</td>
+                  <td>
+                    <Link href={`/track?n=${encodeURIComponent(r.number)}`}>{r.number}</Link>
+                  </td>
                   <td>{r.parties}</td>
                   <td>{r.room}</td>
                 </tr>

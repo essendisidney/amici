@@ -1,8 +1,17 @@
 export type ChatMsg = { from: 'me' | 'amici'; text: string }
+export type RightsTopic = 'emergency' | 'lockout' | 'bail' | 'general'
+
+export function rightsTopic(q: string): RightsTopic {
+  const t = q.toLowerCase()
+  if (/(danger|violence|beat|999|dharura)/.test(t)) return 'emergency'
+  if (/(landlord|rent|evict|nyumba|panga|mwenye nyumba|lock|kufuli)/.test(t)) return 'lockout'
+  if (/(bail|dhamana|jela|police|polisi)/.test(t)) return 'bail'
+  return 'general'
+}
 
 export function rightsReply(q: string, sw: boolean): ChatMsg[] {
-  const t = q.toLowerCase()
-  if (/(danger|violence|beat|999|dharura|piga)/.test(t)) {
+  const topic = rightsTopic(q)
+  if (topic === 'emergency') {
     return [
       {
         from: 'amici',
@@ -12,17 +21,17 @@ export function rightsReply(q: string, sw: boolean): ChatMsg[] {
       },
     ]
   }
-  if (/(landlord|rent|evict|nyumba|panga|mwenye nyumba)/.test(t)) {
+  if (topic === 'lockout') {
     return [
       {
         from: 'amici',
         text: sw
-          ? 'Mwenye nyumba hawezi kukufunga nje bila amri ya mahakama katika hali nyingi. Andika tarehe na picha. Hatua: wakili wa madai madogo — binadamu hukagua kabla ya kufungua.'
-          : 'A landlord usually cannot lock you out without a court order. Record dates and photograph the locks. Next: a Small Claims advocate — a human checks before filing.',
+          ? 'Mwenye nyumba hawezi kukufunga nje bila amri ya mahakama katika hali nyingi. Andika tarehe, risiti ya M-PESA, na picha ya kufuli. Hatua: fungua thread na wakili — binadamu hukagua kabla ya kufungua. Si ushauri.'
+          : 'A landlord usually cannot lock you out without a court order. Note the date, keep the rent M-PESA receipt, and photograph the locks. Next: open a thread with an advocate — a human checks before filing. Not advice.',
       },
     ]
   }
-  if (/(bail|dhamana|jela|police|polisi)/.test(t)) {
+  if (topic === 'bail') {
     return [
       {
         from: 'amici',
@@ -48,4 +57,21 @@ export function slugify(value: string) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
     .slice(0, 40)
+}
+
+export const RIGHTS_DRAFT_KEY = 'amici-rights-draft'
+
+export function saveRightsDraft(text: string) {
+  if (typeof window === 'undefined') return
+  sessionStorage.setItem(RIGHTS_DRAFT_KEY, text)
+}
+
+export function loadRightsDraft() {
+  if (typeof window === 'undefined') return ''
+  return sessionStorage.getItem(RIGHTS_DRAFT_KEY) ?? ''
+}
+
+export function clearRightsDraft() {
+  if (typeof window === 'undefined') return
+  sessionStorage.removeItem(RIGHTS_DRAFT_KEY)
 }

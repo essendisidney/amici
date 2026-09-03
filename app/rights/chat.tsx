@@ -2,24 +2,48 @@
 
 import { persistRightsTurn } from '@/app/actions'
 import { useLang } from '@/components/Lang'
-import { rightsReply, type ChatMsg } from '@/lib/rights'
+import { openMatter } from '@/lib/file-store'
+import {
+  clearRightsDraft,
+  rightsReply,
+  rightsTopic,
+  saveRightsDraft,
+  type ChatMsg,
+  type RightsTopic,
+} from '@/lib/rights'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 export function RightsChat({ signedIn, initial }: { signedIn: boolean; initial: ChatMsg[] }) {
   const { t, lang } = useLang()
+  const router = useRouter()
   const [text, setText] = useState('')
   const [msgs, setMsgs] = useState<ChatMsg[]>(initial)
+  const [topic, setTopic] = useState<RightsTopic | null>(null)
+  const [lastAsk, setLastAsk] = useState('')
 
-  async function send() {
-    const q = text.trim()
-    if (!q) return
-    const answers = rightsReply(q, lang === 'sw')
-    setMsgs((m) => [...m, { from: 'me', text: q }, ...answers])
+  async function sendText(q: string) {
+    const ask = q.trim()
+    if (!ask) return
+    const answers = rightsReply(ask, lang === 'sw')
+    const kind = rightsTopic(ask)
+    setMsgs((m) => [...m, { from: 'me', text: ask }, ...answers])
+    setTopic(kind)
+    setLastAsk(ask)
+    saveRightsDraft(ask)
     setText('')
     if (signedIn) {
-      await persistRightsTurn(q, answers.map((a) => a.text).join('\n'))
+      await persistRightsTurn(ask, answers.map((a) => a.text).join('\n'))
     }
+  }
+
+  function openWambui() {
+    const matter = lastAsk || t.rightsLockChip
+    saveRightsDraft(matter)
+    const room = openMatter('Wambui Njoroge', matter)
+    clearRightsDraft()
+    router.push(`/inbox/${room.id}`)
   }
 
   return (
@@ -46,18 +70,58 @@ export function RightsChat({ signedIn, initial }: { signedIn: boolean; initial: 
             {m.text}
           </div>
         ))}
-        <div className="ussd">
-          <strong>{t.nextSteps}</strong>
-          <p>
-            <Link href="/lawyers">{t.findLawyer}</Link> · <Link href="/track">{t.trackCase}</Link>
-          </p>
-        </div>
+        {topic === 'lockout' ? (
+          <div className="panel" style={{ marginTop: 8 }}>
+            <h2 style={{ fontSize: '1.1rem', marginBottom: 6 }}>{t.rightsHandoff}</h2>
+            <p className="muted" style={{ marginBottom: 10 }}>
+              {t.rightsEvidenceNext}
+            </p>
+            <div className="composer" style={{ flexWrap: 'wrap' }}>
+              <button className="btn" type="button" onClick={openWambui}>
+                {t.rightsOpenThread}
+              </button>
+              <Link className="btn ghost" href={`/lawyers/wambui?matter=${encodeURIComponent(lastAsk || t.rightsLockChip)}`}>
+                {t.findLawyer}
+              </Link>
+              <Link className="btn ghost" href="/ussd">
+                USSD
+              </Link>
+            </div>
+          </div>
+        ) : null}
+        {topic === 'bail' ? (
+          <div className="ussd">
+            <strong>{t.nextSteps}</strong>
+            <p>
+              <Link href="/proof?kind=bail">{t.copySms}</Link> · <Link href="/track">{t.trackCase}</Link> ·{' '}
+              <Link href="/lawyers/hassan">{t.findLawyer}</Link>
+            </p>
+          </div>
+        ) : null}
+        {topic !== 'lockout' && topic !== 'bail' ? (
+          <div className="ussd">
+            <strong>{t.nextSteps}</strong>
+            <p>
+              <Link href="/lawyers">{t.findLawyer}</Link> · <Link href="/track">{t.trackCase}</Link>
+            </p>
+          </div>
+        ) : null}
       </div>
-      <div className="composer">
-        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.chatPlaceholder} />
-        <button className="btn" type="button" onClick={send}>
-          {t.send}
-        </button>
+      <div className="composer" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button className="btn ghost" type="button" onClick={() => sendText(t.rightsLockChip)}>
+            {t.rightsLockChip}
+          </button>
+          <button className="btn ghost" type="button" onClick={() => sendText(t.rightsBailChip)}>
+            {t.rightsBailChip}
+          </button>
+        </div>
+        <div className="composer">
+          <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={t.chatPlaceholder} />
+          <button className="btn" type="button" onClick={() => sendText(text)}>
+            {t.send}
+          </button>
+        </div>
       </div>
     </div>
   )

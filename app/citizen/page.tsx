@@ -18,7 +18,7 @@ export default function Citizen() {
           <span className="num">01</span>
           <div>
             <h3>{t.knowRights}</h3>
-            <p>Speak it. Kiswahili first. A person still signs the paper.</p>
+            <p>Speak it. Kiswahili first. Lock-out chip opens a wakili thread.</p>
           </div>
         </Link>
         <Link className="tile" href="/lawyers">
