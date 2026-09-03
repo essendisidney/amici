@@ -10,6 +10,7 @@ export async function GET() {
       amountKes: h.amountKes,
       purpose: h.purpose,
       label: h.label,
+      matterId: h.matterId,
       msisdn: maskMsisdn(h.msisdn),
       mpesaReceipt: h.mpesaReceipt,
     })),

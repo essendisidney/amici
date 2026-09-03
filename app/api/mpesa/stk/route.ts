@@ -9,6 +9,7 @@ export async function POST(request: Request) {
     amountKes?: number
     purpose?: HoldPurpose
     label?: string
+    matterId?: string
   }
 
   const msisdn = toMsisdn(body.phone ?? '')
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
   const purpose: HoldPurpose = body.purpose === 'bail' ? 'bail' : 'consult'
   const id = crypto.randomUUID()
   const label = (body.label ?? purpose).slice(0, 80)
+  const matterId = body.matterId?.slice(0, 80) ?? null
 
   try {
     const push = await stkPush({
@@ -39,6 +41,7 @@ export async function POST(request: Request) {
       amountKes,
       msisdn,
       label,
+      matterId,
       status: 'pending',
       checkoutRequestId: push.checkoutRequestId,
       mpesaReceipt: null,

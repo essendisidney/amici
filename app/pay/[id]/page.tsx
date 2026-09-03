@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 type Status = {
@@ -17,6 +17,8 @@ type Status = {
 
 export default function PayWait() {
   const { id } = useParams<{ id: string }>()
+  const search = useSearchParams()
+  const matterId = search.get('matterId')
   const [row, setRow] = useState<Status | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -75,12 +77,27 @@ export default function PayWait() {
             </div>
           )}
           {row.status === 'held' && (
-            <p>
-              <Link className="btn" href="/proof">
+            <p style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <Link
+                className="btn"
+                href={`/proof?kind=${encodeURIComponent(row.purpose)}&amount=${row.amountKes}&advocate=${encodeURIComponent(row.label)}&ref=${encodeURIComponent(row.mpesaReceipt ?? '')}`}
+              >
                 Open SMS proof
               </Link>
+              {matterId ? (
+                <Link className="btn ghost" href={`/inbox/${matterId}`}>
+                  Back to thread
+                </Link>
+              ) : null}
             </p>
           )}
+          {row.status === 'released' && matterId ? (
+            <p>
+              <Link className="btn ghost" href={`/inbox/${matterId}`}>
+                Back to thread
+              </Link>
+            </p>
+          ) : null}
         </>
       )}
     </>

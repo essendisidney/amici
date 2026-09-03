@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { LangProvider } from '@/components/Lang'
 import { Shell } from '@/components/Shell'
 import { display, mono, sans } from '@/lib/fonts'
@@ -9,6 +9,12 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Amici',
   description: 'Independent access layer for Kenyan justice. Not the official Case Tracking System.',
+  manifest: '/manifest.json',
+  appleWebApp: { capable: true, title: 'Amici', statusBarStyle: 'black-translucent' },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#07110c',
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

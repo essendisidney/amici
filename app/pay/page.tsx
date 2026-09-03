@@ -11,6 +11,7 @@ function Form() {
   const [amount, setAmount] = useState(q.get('amount') ?? '1500')
   const [purpose, setPurpose] = useState(q.get('purpose') === 'bail' ? 'bail' : 'consult')
   const [label, setLabel] = useState(q.get('label') ?? 'Wambui Njoroge consult')
+  const matterId = q.get('matterId') ?? ''
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -20,7 +21,7 @@ function Form() {
     const res = await fetch('/api/mpesa/stk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, amountKes: Number(amount), purpose, label }),
+      body: JSON.stringify({ phone, amountKes: Number(amount), purpose, label, matterId }),
     })
     const json = (await res.json()) as { id?: string; error?: string }
     setBusy(false)
@@ -28,7 +29,8 @@ function Form() {
       setError(json.error ?? 'Push failed')
       return
     }
-    router.push(`/pay/${json.id}`)
+    const next = matterId ? `/pay/${json.id}?matterId=${encodeURIComponent(matterId)}` : `/pay/${json.id}`
+    router.push(next)
   }
 
   return (

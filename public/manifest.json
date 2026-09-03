@@ -1,0 +1,17 @@
+{
+  "name": "Amici",
+  "short_name": "Amici",
+  "description": "A friend beside the Kenyan court, not a second court.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07110c",
+  "theme_color": "#07110c",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

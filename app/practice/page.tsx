@@ -2,13 +2,9 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { hasEnvVars } from '@/lib/utils'
 import { ListingForm } from './listing-form'
+import { DemoQueue } from './demo-queue'
 import { RequestRow } from './request-row'
 import { ReviewRow } from './review-row'
-
-const demoRequests = [
-  { id: 'd1', matter: 'Landlord locked her out — Kahawa West', budget: 'KSh 8,000 cap', status: 'pending' },
-  { id: 'd2', matter: 'Unpaid invoice, Small Claims', budget: '15% recovery', status: 'accepted' },
-]
 
 const demoReview = [
   {
@@ -37,12 +33,7 @@ export default async function Practice() {
         </p>
         <div className="alert">AI drafts stay here. Nothing leaves the firm until you sign.</div>
         <div className="dash">
-          <section className="panel">
-            <h2>New requests</h2>
-            {demoRequests.map((r) => (
-              <RequestRow key={r.id} id={r.id} matter={r.matter} budget={r.budget} status={r.status} />
-            ))}
-          </section>
+          <DemoQueue />
           <section className="panel">
             <h2>Human review</h2>
             {demoReview.map((d) => (

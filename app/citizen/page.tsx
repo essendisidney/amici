@@ -37,7 +37,9 @@ export default function Citizen() {
         </Link>
       </div>
       <p style={{ marginTop: 16 }}>
-        <Link href="/desk">{t.desk} →</Link>
+        <Link href="/desk">{t.desk}</Link>
+        {' · '}
+        <Link href="/inbox">{t.inbox}</Link>
       </p>
       <div className="ussd">
         <div>

@@ -1,7 +1,10 @@
 export type ProofKind = 'consult' | 'bail'
 
-export function makeProof(kind: ProofKind, extra?: { advocate?: string; caseNumber?: string; amount?: number }) {
-  const ref = `AMICI-${kind === 'bail' ? 'B' : 'H'}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
+export function makeProof(
+  kind: ProofKind,
+  extra?: { advocate?: string; caseNumber?: string; amount?: number; ref?: string },
+) {
+  const ref = extra?.ref ?? `AMICI-${kind === 'bail' ? 'B' : 'H'}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
   const amount = extra?.amount ?? (kind === 'bail' ? 5000 : 1500)
   const when = new Date().toLocaleString('en-KE', { dateStyle: 'medium', timeStyle: 'short' })
   const body =

@@ -8,6 +8,7 @@ import { signOut } from '@/app/actions'
 const links = [
   { href: '/citizen', key: 'citizen' as const },
   { href: '/desk', key: 'desk' as const },
+  { href: '/inbox', key: 'inbox' as const },
   { href: '/practice', key: 'lawyer' as const },
   { href: '/integrity', key: 'integrity' as const },
   { href: '/ussd', key: 'ussd' as const },
@@ -80,8 +81,8 @@ export function Shell({
         <Link className="btn ghost" href="/track">
           Kesi
         </Link>
-        <Link className="btn ghost" href="/ussd">
-          *#
+        <Link className="btn ghost" href="/inbox">
+          SMS
         </Link>
       </div>
     </div>

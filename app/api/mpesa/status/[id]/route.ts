@@ -13,6 +13,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     amountKes: hold.amountKes,
     purpose: hold.purpose,
     label: hold.label,
+    matterId: hold.matterId,
     msisdn: maskMsisdn(hold.msisdn),
     mpesaReceipt: hold.mpesaReceipt,
     demo: !hasDarajaKeys(),

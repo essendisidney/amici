@@ -2,11 +2,28 @@
 
 import { makeProof, type ProofKind } from '@/lib/proof'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Suspense, useMemo, useState } from 'react'
 
-export default function Proof() {
-  const [kind, setKind] = useState<ProofKind>('consult')
-  const [pack, setPack] = useState(() => makeProof('consult'))
+function ProofBody() {
+  const search = useSearchParams()
+  const startKind: ProofKind = search.get('kind') === 'bail' ? 'bail' : 'consult'
+  const advocate = search.get('advocate') ?? undefined
+  const caseNumber = search.get('caseNumber') ?? undefined
+  const amount = Number(search.get('amount') ?? '')
+  const ref = search.get('ref') ?? undefined
+
+  function build(kind: ProofKind) {
+    return makeProof(kind, {
+      advocate,
+      caseNumber,
+      amount: Number.isFinite(amount) ? amount : undefined,
+      ref,
+    })
+  }
+
+  const [kind, setKind] = useState<ProofKind>(startKind)
+  const [pack, setPack] = useState(() => build(startKind))
   const sms = useMemo(() => pack.body, [pack])
 
   return (
@@ -26,7 +43,7 @@ export default function Proof() {
           type="button"
           onClick={() => {
             setKind('consult')
-            setPack(makeProof('consult'))
+            setPack(build('consult'))
           }}
         >
           Advocate hold
@@ -36,7 +53,7 @@ export default function Proof() {
           type="button"
           onClick={() => {
             setKind('bail')
-            setPack(makeProof('bail', { caseNumber: 'CR/2201/2026', amount: 5000 }))
+            setPack(build('bail'))
           }}
         >
           Cash bail
@@ -55,5 +72,13 @@ export default function Proof() {
         Copy SMS
       </button>
     </>
+  )
+}
+
+export default function Proof() {
+  return (
+    <Suspense>
+      <ProofBody />
+    </Suspense>
   )
 }

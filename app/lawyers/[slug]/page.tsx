@@ -79,7 +79,7 @@ export default async function LawyerProfile({ params }: { params: Promise<{ slug
       <p>
         {lawyer.fee_from} · {lawyer.timeline}
       </p>
-      <BookForm advocateId={lawyer.id} demo={!hasEnvVars} />
+      <BookForm advocateId={lawyer.id} advocateName={lawyer.display_name} demo={!hasEnvVars} />
     </>
   )
 }

@@ -4,14 +4,18 @@ import { queueDraft } from '@/app/actions'
 import { draftDemandLetter } from '@/lib/draft'
 import { hasEnvVars } from '@/lib/utils'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Suspense, useMemo, useState } from 'react'
 
-export default function DraftPage() {
-  const [client, setClient] = useState('Grace Muthoni')
-  const [opponent, setOpponent] = useState('Kahawa West Properties')
-  const [town, setTown] = useState('Nairobi')
-  const [amount, setAmount] = useState('KSh 48,000')
-  const [facts, setFacts] = useState('The landlord changed the locks on 28 August 2026 after rent was paid for August.')
+function DraftForm() {
+  const search = useSearchParams()
+  const [client, setClient] = useState(search.get('client') ?? 'Grace Muthoni')
+  const [opponent, setOpponent] = useState(search.get('opponent') ?? 'Kahawa West Properties')
+  const [town, setTown] = useState(search.get('town') ?? 'Nairobi')
+  const [amount, setAmount] = useState(search.get('amount') ?? 'KSh 48,000')
+  const [facts, setFacts] = useState(
+    search.get('facts') ?? 'The landlord changed the locks on 28 August 2026 after rent was paid for August.',
+  )
   const [msg, setMsg] = useState<string | null>(null)
 
   const preview = useMemo(
@@ -73,5 +77,13 @@ export default function DraftPage() {
         </section>
       </div>
     </>
+  )
+}
+
+export default function DraftPage() {
+  return (
+    <Suspense>
+      <DraftForm />
+    </Suspense>
   )
 }

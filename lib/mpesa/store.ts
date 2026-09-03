@@ -7,6 +7,7 @@ export type Hold = {
   amountKes: number
   msisdn: string
   label: string
+  matterId: string | null
   status: HoldStatus
   checkoutRequestId: string | null
   mpesaReceipt: string | null

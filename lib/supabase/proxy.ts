@@ -13,6 +13,7 @@ const publicPrefixes = [
   '/proof',
   '/cause-list',
   '/pay',
+  '/inbox',
   '/login',
   '/auth',
 ]

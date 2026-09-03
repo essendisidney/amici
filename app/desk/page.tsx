@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { hasEnvVars } from '@/lib/utils'
 import { caseCache } from '@/lib/cases'
+import { PhoneFile } from './phone-file'
 
 export default async function Desk() {
   let watches: { case_number: string; title: string | null; court: string | null; status_note: string | null }[] = []
@@ -47,7 +48,8 @@ export default async function Desk() {
       <p className="kicker">Your file</p>
       <h1 style={{ fontSize: 'clamp(2.6rem, 8vw, 4.6rem)', marginBottom: 12 }}>Desk</h1>
       <p className="lede">
-        Watches and consults in one place. Official status still belongs to CTS.
+        Watches and consults in one place. Official status still belongs to CTS. Hearing pings live in the{' '}
+        <Link href="/inbox">inbox</Link>.
         {!signedIn && hasEnvVars ? (
           <>
             {' '}
@@ -84,6 +86,7 @@ export default async function Desk() {
           ))}
         </section>
       </div>
+      <PhoneFile />
     </>
   )
 }
