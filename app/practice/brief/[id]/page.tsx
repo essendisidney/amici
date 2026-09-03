@@ -54,6 +54,18 @@ export default function BriefPage() {
 
   const latest = matter.messages.at(-1)
   const held = holds.find((h) => h.status === 'held' || h.status === 'released') ?? holds[0]
+  const isTenantLockout =
+    `${matter.matter} ${opponent}`.toLowerCase().includes('lock') ||
+    `${matter.matter} ${opponent}`.toLowerCase().includes('landlord')
+
+  // If the brief doesn't already have a receipt reference, try to carry it over
+  // from the linked consult hold (mpesaReceipt).
+  useEffect(() => {
+    if (receiptRef.trim()) return
+    const mp = held?.mpesaReceipt
+    if (mp) setReceiptRef(mp)
+  }, [held?.mpesaReceipt, receiptRef])
+
   const baseFacts = matter.messages[0]?.text ?? matter.matter
   const extra: string[] = []
   if (evidenceNote.trim()) extra.push(`Evidence note: ${evidenceNote.trim()}`)
@@ -118,13 +130,39 @@ export default function BriefPage() {
               placeholder="Receipt or voucher ref"
             />
           </div>
+          {held?.mpesaReceipt ? (
+            <p style={{ marginTop: -6 }}>
+              <button className="btn ghost" type="button" onClick={() => setReceiptRef(held.mpesaReceipt ?? '')}>
+                Use hold receipt
+              </button>
+            </p>
+          ) : null}
+          {isTenantLockout ? (
+            <p style={{ marginTop: -6 }}>
+              <button
+                className="btn ghost"
+                type="button"
+                onClick={() =>
+                  setEvidenceNote(
+                    'Lock-out checklist:\n1) Rent M-PESA receipt ref\n2) Photo note: changed lock/door (what it shows)\n3) Date locks changed\n4) Any threats/messages (verbatim if possible)',
+                  )
+                }
+              >
+                Use lock-out evidence checklist
+              </button>
+            </p>
+          ) : null}
           <div className="field">
             <label htmlFor="evidenceNote">Evidence note</label>
             <textarea
               id="evidenceNote"
               value={evidenceNote}
               onChange={(e) => setEvidenceNote(e.target.value)}
-              placeholder="What papers, photos, or receipts still need checking?"
+              placeholder={
+                isTenantLockout
+                  ? 'Lock-out checklist: (1) Rent M-PESA receipt ref (2) Photo of changed lock/door (3) Date locks changed (4) Any threats/messages'
+                  : 'What papers, photos, or receipts still need checking?'
+              }
             />
           </div>
           <p>

@@ -24,6 +24,14 @@ export default function MatterRoom() {
     )
   }
 
+  const isLockout =
+    `${matter.matter} ${matter.opponent ?? ''}`.toLowerCase().includes('lock') ||
+    `${matter.matter} ${matter.opponent ?? ''}`.toLowerCase().includes('landlord')
+
+  const placeholder = isLockout
+    ? 'What changed? When were the locks changed? M-PESA rent receipt ref. Any threats/messages. (Also: photo note about the door/lock.)'
+    : 'Send a fact, not a novel…'
+
   function send() {
     const q = text.trim()
     if (!q) return
@@ -35,6 +43,13 @@ export default function MatterRoom() {
     }
     setMatter(next)
     setText('')
+  }
+
+  function addLockoutSnippet(snippet: string) {
+    setText((t) => {
+      const next = t.trim()
+      return next ? `${next}\n${snippet}` : snippet
+    })
   }
 
   return (
@@ -73,7 +88,41 @@ export default function MatterRoom() {
         ))}
       </div>
       <div className="composer">
-        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Send a fact, not a novel…" />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {isLockout ? (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button
+                className="btn ghost"
+                type="button"
+                onClick={() => addLockoutSnippet('Locks changed: date/time (DD Mon YYYY)')}
+              >
+                Add date
+              </button>
+              <button
+                className="btn ghost"
+                type="button"
+                onClick={() => addLockoutSnippet('M-PESA rent receipt ref/code (type exactly)')}
+              >
+                Add receipt ref
+              </button>
+              <button
+                className="btn ghost"
+                type="button"
+                onClick={() => addLockoutSnippet('Photo note: what the door/lock shows')}
+              >
+                Add photo note
+              </button>
+              <button
+                className="btn ghost"
+                type="button"
+                onClick={() => addLockoutSnippet('Any threats/messages (copy verbatim if possible)')}
+              >
+                Add threats
+              </button>
+            </div>
+          ) : null}
+          <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder={placeholder} />
+        </div>
         <button className="btn" type="button" onClick={send}>
           Send
         </button>
